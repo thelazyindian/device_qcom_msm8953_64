@@ -8,8 +8,10 @@ else
 DEVICE_PACKAGE_OVERLAYS := device/qcom/msm8953_64/overlay
 endif
 
-#BOARD_HAVE_QCOM_FM := true
-TARGET_USES_NQ_NFC := false
+BOARD_HAVE_QCOM_FM := true
+
+TARGET_USES_NQ_NFC := true
+
 TARGET_KERNEL_VERSION := 3.18
 
 TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
@@ -25,6 +27,8 @@ ifeq ($(ENABLE_VENDOR_IMAGE), true)
 #TARGET_USES_QTIC := false
 endif
 
+# Default A/B configuration.
+ENABLE_AB ?= false
 
 # Enable features in video HAL that can compile only on this platform
 TARGET_USES_MEDIA_EXTENSIONS := true
@@ -74,9 +78,9 @@ PRODUCT_BOOT_JARS += WfdCommon
 PRODUCT_BOOT_JARS += oem-services
 endif
 
-#ifeq ($(strip $(BOARD_HAVE_QCOM_FM)),true)
-#PRODUCT_BOOT_JARS += qcom.fmradio
-#endif #BOARD_HAVE_QCOM_FM
+ifeq ($(strip $(BOARD_HAVE_QCOM_FM)),true)
+PRODUCT_BOOT_JARS += qcom.fmradio
+endif #BOARD_HAVE_QCOM_FM
 
 # add vendor manifest file
 PRODUCT_COPY_FILES += \
@@ -87,11 +91,11 @@ PRODUCT_CHARACTERISTICS := nosdcard
 
 # When can normal compile this module,  need module owner enable below commands
 # font rendering engine feature switch
--include $(QCPATH)/common/config/rendering-engine.mk
-ifneq (,$(strip $(wildcard $(PRODUCT_RENDERING_ENGINE_REVLIB))))
-    MULTI_LANG_ENGINE := REVERIE
+#-include $(QCPATH)/common/config/rendering-engine.mk
+#ifneq (,$(strip $(wildcard $(PRODUCT_RENDERING_ENGINE_REVLIB))))
+#    MULTI_LANG_ENGINE := REVERIE
 #    MULTI_LANG_ZAWGYI := REVERIE
-endif
+#endif
 
 ifneq ($(TARGET_DISABLE_DASH), true)
     PRODUCT_BOOT_JARS += qcmediaplayer
@@ -238,3 +242,31 @@ PRODUCT_PACKAGES += \
 
 #Enable Lights Impl HAL Compilation
 PRODUCT_PACKAGES += android.hardware.light@2.0-impl
+
+#set KMGK_USE_QTI_SERVICE to true to enable QTI KEYMASTER and GATEKEEPER HIDLs
+ifeq ($(ENABLE_VENDOR_IMAGE), true)
+KMGK_USE_QTI_SERVICE := false
+endif
+
+#Enable AOSP KEYMASTER and GATEKEEPER HIDLs
+ifneq ($(KMGK_USE_QTI_SERVICE), true)
+PRODUCT_PACKAGES += android.hardware.gatekeeper@1.0-impl \
+                    android.hardware.gatekeeper@1.0-service \
+                    android.hardware.keymaster@3.0-impl \
+                    android.hardware.keymaster@3.0-service
+endif
+
+PRODUCT_PROPERTY_OVERRIDES += rild.libpath=/vendor/lib64/libril-qc-qmi-1.so
+
+ifeq ($(ENABLE_AB),true)
+#A/B related packages
+PRODUCT_PACKAGES += update_engine \
+                   update_engine_client \
+                   update_verifier \
+                   bootctrl.msm8953 \
+                   brillo_update_payload \
+                   android.hardware.boot@1.0-impl \
+                   android.hardware.boot@1.0-service
+#Boot control HAL test app
+PRODUCT_PACKAGES_DEBUG += bootctl
+endif
