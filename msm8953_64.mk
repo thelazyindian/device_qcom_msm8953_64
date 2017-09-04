@@ -4,10 +4,9 @@ TARGET_USES_QCOM_BSP := false
 
 ifeq ($(TARGET_USES_AOSP),true)
 TARGET_DISABLE_DASH := true
-else
-DEVICE_PACKAGE_OVERLAYS := device/qcom/msm8953_64/overlay
 endif
 
+DEVICE_PACKAGE_OVERLAYS := device/qcom/msm8953_64/overlay
 BOARD_HAVE_QCOM_FM := true
 
 TARGET_USES_NQ_NFC := true
@@ -39,7 +38,7 @@ TARGET_USES_MEDIA_EXTENSIONS := true
 ifeq ($(TARGET_ENABLE_QC_AV_ENHANCEMENTS), true)
 PRODUCT_COPY_FILES += \
     device/qcom/msm8953_32/media/media_profiles_8953.xml:system/etc/media_profiles.xml \
-    device/qcom/msm8953_32/media/media_profiles_8953.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles.xml \
+    device/qcom/msm8953_32/media/media_profiles_8953.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles_vendor.xml \
     device/qcom/msm8953_32/media/media_codecs_8953.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs.xml \
     device/qcom/msm8953_32/media/media_codecs_performance_8953.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_performance.xml \
     device/qcom/msm8953_32/media/media_profiles_8953_v1.xml:system/etc/media_profiles_8953_v1.xml \
